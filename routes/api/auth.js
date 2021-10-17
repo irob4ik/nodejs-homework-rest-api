@@ -1,40 +1,21 @@
 const express = require('express');
 const router = express.Router();
-const bcrypt = require("bcryptjs");
-const { User } = require('../../models');
+
+const {controllerWrapper, validation, authenticate} = require('../../middlewares');
 
 const { userSchema } = require("../../models/user");
-const { signup, login, logout } = require("../../controllers/auth/index");
+const {authControllers: ctrl} = require("../../controllers");
 
-// POST /api/auth/register
-router.post("/signup", async (req, res) => {
-    const validation = userSchema.validate(req.body);
-    if (validation.error) {
-        return res.status(400).json({ message: 'required field error' });
-    }
+// POST /api/users/register
+router.post("/signup", validation(userSchema), controllerWrapper(ctrl.register));
 
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    if (user) {
-        return res.status(409).json({ message: "Email in use" });
-    }
+// POST /api/users/login
+router.post("/login", validation(userSchema), controllerWrapper(ctrl.login));
 
-    const hashpassword = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
+// GET /api/users/logout
+router.get("/logout", authenticate, controllerWrapper(ctrl.logout));
 
-    const newUser = await User.create({ email, password: hashpassword });
-    res.status(201).send(newUser);
-});
-
-
-// POST /api/auth/login
-router.post("/login", async (req, res) => {
-    
-});
-
-// POST /api/auth/logout
-router.get("/logout", async (req, res) => {
-    
-});
-
+// GET /api/users/current
+router.get("/current", authenticate, controllerWrapper(ctrl.current));
 
 module.exports = router;
