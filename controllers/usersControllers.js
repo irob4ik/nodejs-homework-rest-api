@@ -10,9 +10,11 @@ const updateAvatar = async (req, res) => {
     const uploadDir = path.join(__dirname, "../", "public\\avatars", filename);
     
     try {
-        await fs.rename(tempDir, uploadDir);
+        await fs.rename(tempDir, uploadDir, () => {
+            console.log("\nFile Moved!\n");
+        });
         const image = path.join("avatars", filename);
-        await User.findByIdAndUpdate(_id, { avatarURL: image })
+        await User.findByIdAndUpdate(_id, { avatarURL: image });
         res.status(201).send({ message: 'Update avatar success' });
     } catch (error) {
         await fs.unlink(tempDir);
