@@ -4,7 +4,7 @@ const controllerWrapper = (ctrl) => {
             await ctrl(req, res, next);
         } 
         catch (error) {
-            if(error.name === "CastError"){
+            if (error.name === "CastError") {
                 error.status = 404;
             }
             next(error);
