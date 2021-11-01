@@ -6,15 +6,11 @@ const { User } = require('../../models');
 const { SECRET_KEY } = process.env;
 
 const login = async (req, res) => {
-   const { email, password } = req.body;
-    const user = await User.findOne({ email });    
-    if (!user) {
-        return res.status(401).json({ message: "Email or password is wrong" });
-    }
-
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
     const isCrrectPassword = bcrypt.compareSync(password, user.password);
-    if (!isCrrectPassword) {
-        return res.status(401).json({ message: "Email or password is wrong" });
+    if (!user || !isCrrectPassword || !user.verify) {
+        return res.status(401).json({ message: "Email or password is wrong, or email is not verified" });
     }
 
     const payload = {
